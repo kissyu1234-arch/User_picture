@@ -27,8 +27,13 @@ export default function LoginPage() {
       return
     }
 
-    sessionStorage.setItem('client', JSON.stringify(data.client))
-    router.push('/gallery')
+    if (data.isAdmin) {
+      sessionStorage.setItem('adminClients', JSON.stringify(data.clients))
+      router.push('/admin')
+    } else {
+      sessionStorage.setItem('client', JSON.stringify(data.client))
+      router.push('/gallery')
+    }
   }
 
   return (

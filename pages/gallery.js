@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
-import Image from 'next/image'
 
 export default function GalleryPage() {
   const router = useRouter()
   const [client, setClient] = useState(null)
   const [selected, setSelected] = useState(null)
+  const [fromAdmin, setFromAdmin] = useState(false)
 
   useEffect(() => {
     const stored = sessionStorage.getItem('client')
@@ -14,6 +14,7 @@ export default function GalleryPage() {
       return
     }
     setClient(JSON.parse(stored))
+    setFromAdmin(!!sessionStorage.getItem('fromAdmin'))
   }, [router])
 
   if (!client) return null
@@ -29,10 +30,14 @@ export default function GalleryPage() {
           <p className="text-sm text-gray-500">총 {photoCount}장</p>
         </div>
         <button
-          onClick={() => { sessionStorage.removeItem('client'); router.push('/') }}
+          onClick={() => {
+            sessionStorage.removeItem('client')
+            sessionStorage.removeItem('fromAdmin')
+            router.push(fromAdmin ? '/admin' : '/')
+          }}
           className="text-sm text-gray-500 hover:text-gray-700 border border-gray-300 rounded-lg px-3 py-1.5"
         >
-          나가기
+          {fromAdmin ? '대시보드로' : '나가기'}
         </button>
       </div>
 

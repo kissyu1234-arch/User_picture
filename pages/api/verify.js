@@ -11,6 +11,22 @@ export default function handler(req, res) {
     return res.status(400).json({ success: false })
   }
 
+  // 관리자 확인
+  if (name === clientsData.admin.name && dob === clientsData.admin.dob) {
+    return res.status(200).json({
+      success: true,
+      isAdmin: true,
+      clients: clientsData.clients.map(c => ({
+        id: c.id,
+        name: c.name,
+        dob: c.dob,
+        photoCount: c.photos.length,
+        photos: c.photos,
+      })),
+    })
+  }
+
+  // 이용인 확인
   const match = clientsData.clients.find(
     c => c.name === name && c.dob === dob
   )
@@ -21,6 +37,7 @@ export default function handler(req, res) {
 
   return res.status(200).json({
     success: true,
+    isAdmin: false,
     client: {
       id: match.id,
       name: match.name,
