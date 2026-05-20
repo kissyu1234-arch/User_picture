@@ -5,21 +5,29 @@ export default function GalleryPage() {
   const router = useRouter()
   const [client, setClient] = useState(null)
   const [selected, setSelected] = useState(null)
-  const [fromAdmin, setFromAdmin] = useState(false)
 
   useEffect(() => {
-    const stored = sessionStorage.getItem('client')
-    if (!stored) {
-      router.replace('/')
-      return
-    }
-    setClient(JSON.parse(stored))
-    setFromAdmin(!!sessionStorage.getItem('fromAdmin'))
+    fetch('/api/session')
+      .then(res => (res.ok ? res.json() : null))
+      .then(data => {
+        if (!data) { router.replace('/'); return }
+        if (data.isAdmin) { router.replace('/admin'); return }
+        setClient(data.client)
+      })
   }, [router])
 
-  if (!client) return null
+  async function logout() {
+    await fetch('/api/logout', { method: 'POST' })
+    router.push('/')
+  }
 
-  const photoCount = client.photos.length
+  if (!client) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <p className="text-gray-400">로딩 중...</p>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -27,23 +35,19 @@ export default function GalleryPage() {
       <div className="bg-white shadow-sm px-6 py-4 flex items-center justify-between">
         <div>
           <h1 className="text-xl font-bold text-gray-800">{client.name} 님의 사진</h1>
-          <p className="text-sm text-gray-500">총 {photoCount}장</p>
+          <p className="text-sm text-gray-500">총 {client.photos.length}장</p>
         </div>
         <button
-          onClick={() => {
-            sessionStorage.removeItem('client')
-            sessionStorage.removeItem('fromAdmin')
-            router.push(fromAdmin ? '/admin' : '/')
-          }}
+          onClick={logout}
           className="text-sm text-gray-500 hover:text-gray-700 border border-gray-300 rounded-lg px-3 py-1.5"
         >
-          {fromAdmin ? '대시보드로' : '나가기'}
+          나가기
         </button>
       </div>
 
       {/* Photo Grid */}
       <div className="p-4 max-w-4xl mx-auto">
-        {photoCount === 0 ? (
+        {client.photos.length === 0 ? (
           <div className="text-center py-20 text-gray-400">
             <div className="text-5xl mb-3">📂</div>
             <p>등록된 사진이 없습니다.</p>
@@ -54,7 +58,7 @@ export default function GalleryPage() {
               <button
                 key={i}
                 onClick={() => setSelected(photo)}
-                className="aspect-square relative overflow-hidden rounded-xl bg-gray-200 hover:opacity-90 transition-opacity"
+                className="aspect-square overflow-hidden rounded-xl bg-gray-200 hover:opacity-90 transition-opacity"
               >
                 <img
                   src={`/photos/${client.id}/${photo}`}

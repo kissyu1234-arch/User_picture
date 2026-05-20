@@ -27,13 +27,7 @@ export default function LoginPage() {
       return
     }
 
-    if (data.isAdmin) {
-      sessionStorage.setItem('adminClients', JSON.stringify(data.clients))
-      router.push('/admin')
-    } else {
-      sessionStorage.setItem('client', JSON.stringify(data.client))
-      router.push('/gallery')
-    }
+    router.push(data.redirect)
   }
 
   return (
@@ -47,9 +41,7 @@ export default function LoginPage() {
 
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              이름
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">이름</label>
             <input
               type="text"
               value={name}
@@ -61,9 +53,7 @@ export default function LoginPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              생년월일
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">생년월일</label>
             <input
               type="date"
               value={dob}
@@ -73,9 +63,7 @@ export default function LoginPage() {
             />
           </div>
 
-          {error && (
-            <p className="text-red-500 text-sm text-center">{error}</p>
-          )}
+          {error && <p className="text-red-500 text-sm text-center">{error}</p>}
 
           <button
             type="submit"

@@ -3,16 +3,19 @@ import { useRouter } from 'next/router'
 
 export default function AdminPage() {
   const router = useRouter()
-  const [clients, setClients] = useState([])
+  const [clients, setClients] = useState(null)
   const [modal, setModal] = useState(null) // null | 'add' | client객체
   const [expandedId, setExpandedId] = useState(null)
   const [busy, setBusy] = useState(false)
   const [toast, setToast] = useState('')
 
   useEffect(() => {
-    const stored = sessionStorage.getItem('adminClients')
-    if (!stored) { router.replace('/'); return }
-    setClients(JSON.parse(stored))
+    fetch('/api/session')
+      .then(res => (res.ok ? res.json() : null))
+      .then(data => {
+        if (!data?.isAdmin) { router.replace('/'); return }
+        setClients(data.clients)
+      })
   }, [router])
 
   function showToast(msg) {
@@ -111,6 +114,14 @@ export default function AdminPage() {
     setBusy(false)
   }
 
+  if (clients === null) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <p className="text-gray-400">로딩 중...</p>
+      </div>
+    )
+  }
+
   const totalPhotos = clients.reduce((s, c) => s + ((c.photos || []).length || c.photoCount || 0), 0)
 
   return (
@@ -129,7 +140,7 @@ export default function AdminPage() {
             + 이용인 추가
           </button>
           <button
-            onClick={() => { sessionStorage.clear(); router.push('/') }}
+            onClick={async () => { await fetch('/api/logout', { method: 'POST' }); router.push('/') }}
             className="text-sm text-gray-500 border border-gray-300 rounded-lg px-3 py-2"
           >
             로그아웃

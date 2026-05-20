@@ -1,7 +1,9 @@
 import { getGitHubFile, putGitHubFile, deleteGitHubFile, getGitHubFileSha } from '../../../../../lib/github'
+import { getSession } from '../../../../../lib/session'
 
 export default async function handler(req, res) {
   if (req.method !== 'DELETE') return res.status(405).end()
+  if (!getSession(req)?.isAdmin) return res.status(401).json({ error: '관리자 권한이 필요합니다.' })
 
   const { clientId, filename } = req.query
 
