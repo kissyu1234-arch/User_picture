@@ -1,4 +1,12 @@
-import clientsData from '../../data/clients.json'
+import fs from 'fs'
+import path from 'path'
+
+const ADMIN = { name: '관리자', dob: '2026-05-20' }
+
+function getClients() {
+  const filePath = path.join(process.cwd(), 'data', 'clients.json')
+  return JSON.parse(fs.readFileSync(filePath, 'utf-8'))
+}
 
 export default function handler(req, res) {
   if (req.method !== 'POST') {
@@ -12,11 +20,12 @@ export default function handler(req, res) {
   }
 
   // 관리자 확인
-  if (name === clientsData.admin.name && dob === clientsData.admin.dob) {
+  if (name === ADMIN.name && dob === ADMIN.dob) {
+    const { clients } = getClients()
     return res.status(200).json({
       success: true,
       isAdmin: true,
-      clients: clientsData.clients.map(c => ({
+      clients: clients.map(c => ({
         id: c.id,
         name: c.name,
         dob: c.dob,
@@ -27,9 +36,8 @@ export default function handler(req, res) {
   }
 
   // 이용인 확인
-  const match = clientsData.clients.find(
-    c => c.name === name && c.dob === dob
-  )
+  const { clients } = getClients()
+  const match = clients.find(c => c.name === name && c.dob === dob)
 
   if (!match) {
     return res.status(200).json({ success: false })
