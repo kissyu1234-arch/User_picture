@@ -1,7 +1,7 @@
 import fs from 'fs'
 import path from 'path'
 
-const ADMIN = { name: '관리자', dob: '2026-05-20' }
+const ADMIN = { name: '김우희', dob: '2026-01-28' }
 
 function getClients() {
   const filePath = path.join(process.cwd(), 'data', 'clients.json')
